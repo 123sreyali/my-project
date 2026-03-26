@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>TalentForge | AI Recruitment Platform</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons (free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0B0B10;
+      --bg-card: #12121A;
+      --bg-sidebar: #0F0F17;
+      --border: #262633;
+      --accent: #6366F1;
+      --accent-glow: #818cf8;
+      --accent-soft: #2d2b55;
+      --text: #F1F5F9;
+      --text-muted: #94A3B8;
+      --green: #10B981;
+      --amber: #F59E0B;
+      --red: #EF4444;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --transition: all 0.2s ease;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* custom scroll */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+    /* screens */
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: block; animation: fadeIn 0.35s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+
+    /* buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      background: transparent;
+      color: var(--text);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+    }
+    .btn-primary:hover { background: #4f52e0; transform: translateY(-2px); }
+    .btn-outline {
+      border: 1px solid var(--border);
+      background: transparent;
+    }
+    .btn-outline:hover { background: rgba(99,102,241,0.1); border-color: var(--accent);}
+    .btn-ghost { background: transparent; color: var(--text-muted);}
+    .btn-ghost:hover { color: var(--text); background: rgba(255,255,255,0.05);}
+
+    /* cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      transition: var(--transition);
+    }
+
+    .input, .textarea, select {
+      width: 100%;
+      background: #0A0A10;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      transition: 0.2s;
+    }
+    .input:focus, .textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+    }
+    .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    /* badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: rgba(99,102,241,0.15);
+      color: var(--accent-glow);
+    }
+    .badge-green { background: rgba(16,185,129,0.15); color: #34d399; }
+    .badge-amber { background: rgba(245,158,11,0.15); color: #fbbf24; }
+
+    /* progress */
+    .progress-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-glow));
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    /* chips */
+    .chip {
+      padding: 6px 14px;
+      background: var(--bg-sidebar);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .chip.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    /* skill dots */
+    .skill-meter { display: flex; gap: 6px; }
+    .skill-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .skill-dot.filled { background: var(--accent); }
+
+    /* ai bubble */
+    .ai-bubble {
+      background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(129,140,248,0.04));
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+    }
+
+    /* toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1E1E2A;
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 12px 20px;
+      font-size: 0.85rem;
+      z-index: 1000;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: 0.2s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* layout helpers */
+    .flex { display: flex; align-items: center; gap: 12px; }
+    .flex-col { flex-direction: column; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* sidebar */
+    .app-layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .sidebar-link.active, .sidebar-link:hover {
+      background: rgba(99,102,241,0.15);
+      color: var(--accent-glow);
+    }
+    .main-content { flex: 1; padding: 2rem; overflow-y: auto; }
+
+    /* responsive */
+    @media (max-width: 780px) {
+      .sidebar { display: none; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast" class="toast">✨ Action completed</div>
+
+<!-- ==================== LANDING SCREEN ==================== -->
+<div id="screen-landing" class="screen active">
+  <nav style="display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 2rem; border-bottom: 1px solid var(--border);">
+    <div style="font-size: 1.6rem; font-weight: 800;"><span style="color: var(--accent);">Talent</span>Forge</div>
+    <div class="flex">
+      <button class="btn btn-ghost" onclick="switchScreen('login')">Sign In</button>
+      <button class="btn btn-primary" onclick="switchScreen('onboarding')">Get Started →</button>
+    </div>
+  </nav>
+  <div class="container" style="padding: 4rem 1rem; text-align: center;">
+    <div class="badge" style="margin-bottom: 1rem;">✨ AI-Powered Hiring 4.0</div>
+    <h1 style="font-size: 3.5rem; font-weight: 800; letter-spacing: -1px;">Your career story,<br>not a <span style="color: var(--accent);">PDF</span>.</h1>
+    <p style="color: var(--text-muted); max-width: 520px; margin: 1.5rem auto;">Tell our AI about yourself. We'll build a rich, structured profile that gives recruiters a real picture of who you are.</p>
+    <button class="btn btn-primary" style="padding: 12px 28px;" onclick="switchScreen('onboarding')">Build your profile →</button>
+    <div style="margin-top: 4rem; display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
+      <div class="card" style="max-width: 260px;"><i class="fas fa-robot" style="font-size: 2rem; color: var(--accent);"></i><h3 style="margin: 1rem 0 0.5rem;">AI Guided</h3><p style="font-size: 0.85rem;">No manual formatting, just conversation.</p></div>
+      <div class="card" style="max-width: 260px;"><i class="fas fa-chart-line" style="font-size: 2rem; color: var(--green);"></i><h3 style="margin: 1rem 0 0.5rem;">Smart Matching</h3><p style="font-size: 0.85rem;">94% better recruiter engagement.</p></div>
+      <div class="card" style="max-width: 260px;"><i class="fas fa-shield-alt" style="font-size: 2rem; color: var(--amber);"></i><h3 style="margin: 1rem 0 0.5rem;">Bias-free</h3><p style="font-size: 0.85rem;">Skills-first, equitable hiring.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div id="screen-login" class="screen">
+  <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem;">
+    <div class="card" style="width: 420px;">
+      <h2 style="margin-bottom: 1rem;">Welcome back</h2>
+      <div class="flex" style="margin-bottom: 1.5rem;">
+        <button id="login-candidate-tab" class="btn btn-outline" style="flex:1; justify-content: center;" onclick="setLoginRole('candidate')">👤 Candidate</button>
+        <button id="login-recruiter-tab" class="btn btn-outline" style="flex:1; justify-content: center;" onclick="setLoginRole('recruiter')">🏢 Recruiter</button>
+      </div>
+      <div class="label">Email</div>
+      <input type="email" id="login-email" class="input" placeholder="you@example.com" value="demo@talentforge.com">
+      <div class="label" style="margin-top: 1rem;">Password</div>
+      <input type="password" id="login-password" class="input" placeholder="••••••••" value="pass123">
+      <button class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; justify-content: center;" onclick="handleLogin()">Sign In →</button>
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; text-align: center;">Demo: any email / pass → recruiter or candidate dashboard</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ONBOARDING (quick signup) ==================== -->
+<div id="screen-onboarding" class="screen">
+  <div class="container" style="max-width: 600px; margin-top: 3rem;">
+    <div class="card">
+      <h2>Create your profile</h2>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Start your AI journey in 2 minutes</p>
+      <div class="grid-2">
+        <div><div class="label">First name</div><input id="onboard-fname" class="input" placeholder="Aarav"></div>
+        <div><div class="label">Last name</div><input id="onboard-lname" class="input" placeholder="Sharma"></div>
+      </div>
+      <div class="label">Email</div>
+      <input id="onboard-email" class="input" placeholder="hello@example.com">
+      <div class="label">Role</div>
+      <div class="flex" style="flex-wrap: wrap;">
+        <div class="chip selected" data-role="student" onclick="selectOnboardRole('student')">Student</div>
+        <div class="chip" data-role="professional" onclick="selectOnboardRole('professional')">Professional</div>
+        <div class="chip" data-role="fresher" onclick="selectOnboardRole('fresher')">Fresher</div>
+      </div>
+      <button class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;" onclick="completeOnboarding()">Start AI Builder →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== AI BUILDER (MAIN PROFILE) ==================== -->
+<div id="screen-builder" class="screen">
+  <div class="app-layout">
+    <div class="sidebar">
+      <div style="font-weight: 800; font-size: 1.3rem; margin-bottom: 2rem;">Talent<span style="color:var(--accent);">Forge</span></div>
+      <div class="sidebar-link active" data-tab="exp"><i class="fas fa-briefcase"></i> Experience</div>
+      <div class="sidebar-link" data-tab="skills"><i class="fas fa-code"></i> Skills</div>
+      <div class="sidebar-link" data-tab="projects"><i class="fas fa-rocket"></i> Projects</div>
+      <div class="sidebar-link" data-tab="edu"><i class="fas fa-graduation-cap"></i> Education</div>
+      <div style="margin-top: auto; padding-top: 2rem;">
+        <div class="progress-bar"><div id="profile-progress-fill" class="progress-fill" style="width: 25%;"></div></div>
+        <div id="progress-text" style="font-size: 0.7rem; margin-top: 8px; color: var(--text-muted);">Profile 25%</div>
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="ai-bubble" style="margin-bottom: 1.5rem;">
+        <div class="flex"><i class="fas fa-sparkle" style="color: var(--accent);"></i><strong>TalentForge AI</strong></div>
+        <p id="ai-assistant-message" style="margin-top: 8px;">Tell me about your work experience — just like you'd explain to a friend. I'll structure it automatically.</p>
+      </div>
+
+      <!-- Experience Tab -->
+      <div id="exp-tab" class="builder-tab">
+        <textarea id="exp-text" class="textarea" rows="4" placeholder="e.g. Frontend dev intern at TechCorp (6 months). Built React dashboard, reduced load by 40%, WebSocket notifications..."></textarea>
+        <div class="flex" style="margin: 1rem 0;">
+          <button class="btn btn-primary" onclick="processExperienceAI()"><i class="fas fa-magic"></i> Extract with AI</button>
+          <button class="btn btn-outline" onclick="showDemoExperience()">Use demo</button>
+        </div>
+        <div id="extracted-exp-card" style="display: none;" class="card">
+          <div class="flex" style="justify-content: space-between;"><h3 id="exp-title">Frontend Intern</h3><span class="badge badge-green">AI verified</span></div>
+          <p id="exp-company-duration" style="color: var(--text-muted);">TechCorp · 6 months</p>
+          <p id="exp-desc">React dashboard with performance optimizations.</p>
+          <div id="exp-skills-list" class="flex" style="flex-wrap: wrap; margin-top: 10px;"></div>
+          <button class="btn btn-primary" style="margin-top: 12px;" onclick="saveExperienceAndNext()">Confirm & Next →</button>
+        </div>
+      </div>
+
+      <!-- Skills Tab -->
+      <div id="skills-tab" class="builder-tab" style="display: none;">
+        <div class="card">
+          <div class="label">✨ AI Suggested Skills</div>
+          <div id="skills-suggestions" class="flex" style="flex-wrap: wrap; margin-bottom: 1rem;"></div>
+          <div class="label">Custom Skill</div>
+          <div class="flex"><input id="custom-skill-input" class="input" placeholder="e.g. GraphQL"><button class="btn btn-outline" onclick="addCustomSkill()">+ Add</button></div>
+          <div style="margin-top: 1.5rem;"><div class="label">Proficiency (click dots)</div>
+            <div id="skill-proficiencies"></div>
+          </div>
+          <button class="btn btn-primary" style="margin-top: 1rem;" onclick="saveSkillsAndNext()">Save & Continue →</button>
+        </div>
+      </div>
+
+      <!-- Projects Tab -->
+      <div id="projects-tab" class="builder-tab" style="display: none;">
+        <textarea id="project-text" class="textarea" rows="3" placeholder="Describe a project: built a real-time task manager with React, Node, Socket.IO, 200+ users..."></textarea>
+        <button class="btn btn-primary" style="margin: 1rem 0;" onclick="processProjectAI()"><i class="fas fa-robot"></i> Extract Project</button>
+        <div id="project-card" style="display: none;" class="card"></div>
+        <button class="btn btn-primary" onclick="saveProjectsAndNext()">Save & Continue →</button>
+      </div>
+
+      <!-- Education Tab -->
+      <div id="edu-tab" class="builder-tab" style="display: none;">
+        <input id="edu-institution" class="input" placeholder="University / College" value="IIT Delhi">
+        <div class="grid-2" style="margin: 1rem 0;">
+          <input id="edu-degree" class="input" placeholder="B.Tech CSE">
+          <input id="edu-year" class="input" placeholder="2025">
+        </div>
+        <button class="btn btn-primary" onclick="saveEducationAndFinish()">Finish & Preview Profile →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PREVIEW SCREEN (Candidate Profile) ==================== -->
+<div id="screen-preview" class="screen">
+  <nav style="display: flex; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border);">
+    <div style="font-weight: 800;">Talent<span style="color:var(--accent);">Forge</span></div>
+    <div><button class="btn btn-outline" onclick="showToast('🔗 Profile link copied!')"><i class="fas fa-share-alt"></i> Share</button>
+    <button class="btn btn-primary" onclick="submitFinalProfile()"><i class="fas fa-check-circle"></i> Submit Profile</button></div>
+  </nav>
+  <div class="container" style="max-width: 800px; padding: 2rem 1rem;">
+    <div id="preview-content" class="card"></div>
+    <div class="flex" style="justify-content: center; margin-top: 2rem;">
+      <button class="btn btn-primary" onclick="switchScreen('recruiter')">🎯 See Recruiter View</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== RECRUITER DASHBOARD ==================== -->
+<div id="screen-recruiter" class="screen">
+  <div class="app-layout">
+    <div class="sidebar"><div style="font-weight:800;">Recruiter<span style="color:var(--accent);">Hub</span></div>
+      <div class="sidebar-link active"><i class="fas fa-users"></i> Candidates</div>
+      <div class="sidebar-link" onclick="showShortlistAlert()"><i class="fas fa-star"></i> Shortlist</div>
+    </div>
+    <div class="main-content">
+      <div class="flex" style="justify-content: space-between;"><h2>Top Matches for Frontend Developer</h2><button class="btn btn-outline" onclick="switchScreen('preview')">View My Profile</button></div>
+      <div id="candidate-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 1rem; margin-top: 1.5rem;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- GLOBAL STATE ----------
+  let currentUser = { name: "Aarav Sharma", email: "demo@talentforge.com", role: "candidate" };
+  let profile = { experience: null, skills: [], projects: [], education: {}, onboardRole: "student" };
+  let loginSelectedRole = "candidate";
+  let currentBuilderTab = "exp";
+
+  // Helper: Screen switching & toast
+  function switchScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(`screen-${screenId}`).classList.add('active');
+    if (screenId === 'builder') renderSkillsTab();
+    if (screenId === 'preview') renderPreview();
+    if (screenId === 'recruiter') renderRecruiterDashboard();
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  function setLoginRole(role) {
+    loginSelectedRole = role;
+    document.getElementById('login-candidate-tab').style.background = role === 'candidate' ? 'var(--accent)' : '';
+    document.getElementById('login-recruiter-tab').style.background = role === 'recruiter' ? 'var(--accent)' : '';
+  }
+
+  function handleLogin() {
+    if (loginSelectedRole === 'recruiter') switchScreen('recruiter');
+    else switchScreen('preview');
+    showToast(`Welcome ${loginSelectedRole === 'recruiter' ? 'Recruiter' : 'Candidate'}!`);
+  }
+
+  function selectOnboardRole(role) {
+    document.querySelectorAll('[data-role]').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`[data-role="${role}"]`).classList.add('selected');
+    profile.onboardRole = role;
+  }
+
+  function completeOnboarding() {
+    const fname = document.getElementById('onboard-fname').value || "Aarav";
+    const lname = document.getElementById('onboard-lname').value || "Sharma";
+    currentUser.name = `${fname} ${lname}`;
+    currentUser.email = document.getElementById('onboard-email').value || "user@example.com";
+    switchScreen('builder');
+    updateProgressUI();
+  }
+
+  // AI Experience
+  function processExperienceAI() {
+    let raw = document.getElementById('exp-text').value;
+    if (!raw.trim()) raw = "Frontend developer intern at TechCorp for 6 months. Built React dashboard, reduced load times by 40%, used WebSockets, Figma, teamwork.";
+    // Simulate AI extraction
+    setTimeout(() => {
+      const extracted = {
+        title: "Frontend Developer Intern",
+        company: "TechCorp · 6 months",
+        desc: raw.slice(0, 120) + "...",
+        skills: ["React", "JavaScript", "WebSockets", "Figma", "Performance"]
+      };
+      profile.experience = extracted;
+      document.getElementById('exp-title').innerText = extracted.title;
+      document.getElementById('exp-company-duration').innerText = extracted.company;
+      document.getElementById('exp-desc').innerText = extracted.desc;
+      const skillsDiv = document.getElementById('exp-skills-list');
+      skillsDiv.innerHTML = extracted.skills.map(s => `<span class="badge">${s}</span>`).join('');
+      document.getElementById('extracted-exp-card').style.display = "block";
+      updateProgressUI();
+      showToast("✨ AI extracted your experience!");
+    }, 400);
+  }
+
+  function showDemoExperience() { document.getElementById('exp-text').value = "Full Stack Intern at Startup (8 months). Worked on MERN stack, optimized queries, built admin panel."; processExperienceAI(); }
+
+  function saveExperienceAndNext() {
+    if (!profile.experience) processExperienceAI();
+    setTimeout(() => { switchBuilderTab('skills'); }, 100);
+  }
+
+  // Skills Tab rendering
+  function renderSkillsTab() {
+    const defaultSkills = ["React", "JavaScript", "TypeScript", "Node.js", "Python", "Git", "TailwindCSS"];
+    const container = document.getElementById('skills-suggestions');
+    container.innerHTML = defaultSkills.map(skill => `<div class="chip ${profile.skills.includes(skill) ? 'selected' : ''}" onclick="toggleSkillChip(this, '${skill}')">${skill}</div>`).join('');
+    const profDiv = document.getElementById('skill-proficiencies');
+    let skillsToShow = profile.skills.length ? profile.skills : ["React", "JavaScript"];
+    profDiv.innerHTML = skillsToShow.map(skill => `<div class="flex" style="justify-content:space-between; margin: 8px 0;"><span>${skill}</span><div class="skill-meter" data-skill="${skill}">${[1,2,3,4,5].map(l => `<div class="skill-dot ${l<=3 ? 'filled' : ''}" onclick="setSkillLevel('${skill}', ${l})"></div>`).join('')}</div></div>`).join('');
+  }
+
+  window.toggleSkillChip = (el, skill) => {
+    el.classList.toggle('selected');
+    if (el.classList.contains('selected') && !profile.skills.includes(skill)) profile.skills.push(skill);
+    else if (!el.classList.contains('selected')) profile.skills = profile.skills.filter(s => s !== skill);
+    renderSkillsTab();
+  };
+  window.setSkillLevel = (skill, level) => { showToast(`${skill} proficiency set to ${level}/5`); };
+  function addCustomSkill() {
+    let newSkill = document.getElementById('custom-skill-input').value.trim();
+    if(newSkill && !profile.skills.includes(newSkill)) { profile.skills.push(newSkill); renderSkillsTab(); showToast(`➕ ${newSkill} added`); }
+  }
+  function saveSkillsAndNext() { switchBuilderTab('projects'); updateProgressUI(); }
+
+  // Project AI
+  function processProjectAI() {
+    let projRaw = document.getElementById('project-text').value;
+    if (!projRaw.trim()) projRaw = "TaskFlow: Real-time task manager with React, Node.js, Socket.IO, JWT, Vercel deploy. 200+ users.";
+    setTimeout(() => {
+      profile.projects = [{ name: "TaskFlow", desc: projRaw.slice(0, 100), tech: ["React", "Node.js", "Socket.IO"] }];
+      const cardDiv = document.getElementById('project-card');
+      cardDiv.innerHTML = `<h3>🚀 TaskFlow</h3><p>${projRaw.slice(0, 100)}...</p><div class="flex">${profile.projects[0].tech.map(t => `<span class="badge">${t}</span>`).join('')}</div>`;
+      cardDiv.style.display = "block";
+      showToast("AI extracted project details");
+    }, 300);
+  }
+  function saveProjectsAndNext() { if (!profile.projects) processProjectAI(); switchBuilderTab('edu'); updateProgressUI(); }
+
+  function saveEducationAndFinish() {
+    profile.education = { institution: document.getElementById('edu-institution').value, degree: document.getElementById('edu-degree').value, year: document.getElementById('edu-year').value };
+    updateProgressUI(90);
+    switchScreen('preview');
+  }
+
+  function switchBuilderTab(tabId) {
+    currentBuilderTab = tabId;
+    document.querySelectorAll('.builder-tab').forEach(t => t.style.display = 'none');
+    document.getElementById(`${tabId}-tab`).style.display = 'block';
+    document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+    document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+    const messages = { exp: "Tell me about your work experience — I'll structure it.", skills: "Select skills and proficiency — AI will match you.", projects: "Share a cool project you built.", edu: "Almost done! Add your education." };
+    document.getElementById('ai-assistant-message').innerText = messages[tabId] || "Let's build your profile.";
+    if (tabId === 'skills') renderSkillsTab();
+  }
+
+  function updateProgressUI(override=null) {
+    let progress = 25;
+    if (profile.experience) progress += 20;
+    if (profile.skills.length) progress += 20;
+    if (profile.projects) progress += 20;
+    if (profile.education?.institution) progress += 15;
+    progress = Math.min(95, progress);
+    const fill = document.getElementById('profile-progress-fill');
+    if (fill) fill.style.width = `${progress}%`;
+    const txt = document.getElementById('progress-text');
+    if (txt) txt.innerText = `Profile ${progress}%`;
+  }
+
+  function renderPreview() {
+    const container = document.getElementById('preview-content');
+    const expHtml = profile.experience ? `<div><strong>💼 ${profile.experience.title}</strong><br>${profile.experience.company}<p>${profile.experience.desc}</p></div>` : "<p>No experience added</p>";
+    const skillsHtml = `<div><strong>⚡ Skills</strong><br>${profile.skills.map(s => `<span class="badge">${s}</span>`).join(' ') || 'None'}</div>`;
+    const projHtml = profile.projects ? `<div><strong>🚀 Projects</strong><br>${profile.projects[0].name}: ${profile.projects[0].desc}</div>` : "";
+    const eduHtml = profile.education?.institution ? `<div><strong>🎓 ${profile.education.degree}</strong> · ${profile.education.institution} (${profile.education.year})</div>` : "";
+    container.innerHTML = `<div class="card"><h2>${currentUser.name}</h2>${expHtml}${skillsHtml}${projHtml}${eduHtml}<div class="badge-green" style="margin-top:1rem;">✅ AI Match Ready</div></div>`;
+  }
+
+  function submitFinalProfile() {
+    showToast("🎉 Profile submitted! Recruiters can now discover you.");
+    switchScreen('recruiter');
+  }
+
+  function renderRecruiterDashboard() {
+    const candidates = [
+      { name: "Aarav Sharma", match: 94, skills: ["React","TypeScript"], exp: "Frontend Intern @TechCorp" },
+      { name: "Priya Kapoor", match: 86, skills: ["Vue","CSS"], exp: "UI Engineer @Razorpay" },
+      { name: "Rohan Mehta", match: 79, skills: ["Node","MongoDB"], exp: "Full Stack @Startup" }
+    ];
+    const container = document.getElementById('candidate-cards');
+    if(!container) return;
+    container.innerHTML = candidates.map(c => `
+      <div class="card">
+        <div class="flex" style="justify-content:space-between;"><h3>${c.name}</h3><span class="badge-green">${c.match}% match</span></div>
+        <p>${c.exp}</p>
+        <div class="flex">${c.skills.map(s => `<span class="badge">${s}</span>`).join('')}</div>
+        <button class="btn btn-primary btn-sm" style="margin-top:10px; width:100%;" onclick="showToast('⭐ Shortlisted ${c.name}')">Shortlist</button>
+      </div>`).join('');
+  }
+
+  function showShortlistAlert() { showToast("⭐ 3 candidates shortlisted — interview ready"); }
+
+  // navigation listeners after DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const tab = link.getAttribute('data-tab');
+        if (tab) switchBuilderTab(tab);
+      });
+    });
+    updateProgressUI();
+  });
+  window.switchScreen = switchScreen; window.showToast = showToast; window.processExperienceAI = processExperienceAI;
+  window.saveExperienceAndNext = saveExperienceAndNext; window.saveSkillsAndNext = saveSkillsAndNext;
+  window.saveProjectsAndNext = saveProjectsAndNext; window.saveEducationAndFinish = saveEducationAndFinish;
+  window.processProjectAI = processProjectAI; window.addCustomSkill = addCustomSkill; window.showDemoExperience = showDemoExperience;
+  window.completeOnboarding = completeOnboarding; window.handleLogin = handleLogin; window.setLoginRole = setLoginRole;
+  window.renderRecruiterDashboard = renderRecruiterDashboard; window.submitFinalProfile = submitFinalProfile;
+  window.selectOnboardRole = selectOnboardRole;
+</script>
+</body>
+</html>
